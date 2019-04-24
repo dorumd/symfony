@@ -79,9 +79,16 @@ class VarCloner extends AbstractCloner
                 }
             }
             foreach ($vals as $k => $v) {
-                // $v is the original value or a stub object in case of hard references
-                $refs[$k] = $cookie;
-                if ($zvalIsRef = $vals[$k] === $cookie) {
+                if (\PHP_VERSION_ID >= 70400) {
+                    // see https://wiki.php.net/rfc/reference_reflection
+                    $zvalIsRef = null !== \ReflectionReference::fromArrayElement($vals, $k);
+                } else {
+                    // $v is the original value or a stub object in case of hard references
+                    $refs[$k] = $cookie;
+                    $zvalIsRef = $vals[$k] === $cookie;
+                }
+
+                if ($zvalIsRef) {
                     $vals[$k] = &$stub;         // Break hard references to make $queue completely
                     unset($stub);               // independent from the original structure
                     if ($v instanceof Stub && isset($hardRefs[\spl_object_id($v)])) {

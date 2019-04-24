@@ -225,7 +225,20 @@ EOTXT
         $var[] = &$v;
         $var[''] = 2;
 
-        if (\PHP_VERSION_ID >= 70200) {
+        if (\PHP_VERSION_ID >= 70400) {
+            $this->assertDumpMatchesFormat(
+                <<<'EOTXT'
+array:4 [
+  0 => & {}
+  1 => &2 null
+  2 => &2 null
+  "" => 2
+]
+EOTXT
+                ,
+                $var
+            );
+        } else if (\PHP_VERSION_ID >= 70200) {
             $this->assertDumpMatchesFormat(
                 <<<'EOTXT'
 array:4 [
